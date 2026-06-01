@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinanceMe - Personal Finance Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --font-sans:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      --ink:#0D0D0D;--ink2:#3A3A3A;--ink3:#888;--ink4:#B8B8B8;
+      --surface:#FFFFFF;--surface2:#F5F5F5;--surface3:#EFEFEF;
+      --dark:#0D0D0D;--dark2:#1A1A1A;--dark3:#252525;--dark4:#333;
+      --up:#1D9E75;--down:#E24B4A;--warn:#BA7517;--info:#185FA5;
+      --r:8px;--rl:12px;--rxl:16px;
+    }
+    html,body{min-height:100%}
+    body{font-family:var(--font-sans);background:var(--surface2);color:var(--ink);font-size:14px}
+    button,input,select,textarea{font:inherit}
+    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+      outline:2px solid rgba(24,95,165,.35);
+      outline-offset:2px;
+    }
+
+    .app-shell{position:relative;min-height:100vh}
+    .app{display:grid;grid-template-columns:200px 1fr;min-height:100vh;background:var(--surface2)}
+    .sidebar{background:var(--surface);border-right:0.5px solid rgba(0,0,0,.08);display:flex;flex-direction:column}
+    .sb-logo{padding:18px 20px;border-bottom:0.5px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:10px}
+    .sb-logo-icon{width:32px;height:32px;background:var(--dark);border-radius:var(--r);display:flex;align-items:center;justify-content:center}
+    .sb-logo-icon i{color:#fff;font-size:16px}
+    .sb-logo-text{font-size:14px;font-weight:600;color:var(--ink)}
+    .sb-logo-sub{font-size:11px;color:var(--ink3)}
+    .sb-nav{flex:1;padding:12px 10px;overflow-y:auto}
+    .sb-section{font-size:10px;color:var(--ink4);letter-spacing:.08em;padding:10px 10px 4px;text-transform:uppercase}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);cursor:pointer;font-size:13px;color:var(--ink2);margin-bottom:1px;border:none;background:none;width:100%;text-align:left;transition:background .1s}
+    .nav-item:hover{background:var(--surface2)}
+    .nav-item.active{background:var(--dark);color:#fff}
+    .nav-item.active i{color:#fff}
+    .nav-item i{font-size:16px;color:var(--ink3)}
+    .nav-badge{margin-left:auto;background:#E24B4A;color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+    .sb-footer{padding:14px 16px;border-top:0.5px solid rgba(0,0,0,.06)}
+    .user-row{display:flex;align-items:center;gap:9px}
+    .user-av{width:30px;height:30px;background:var(--dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+    .user-name{font-size:12px;font-weight:600;color:var(--ink)}
+    .user-role{font-size:11px;color:var(--ink3)}
+
+    .main{display:flex;flex-direction:column;overflow:hidden}
+    .topbar{background:var(--surface);border-bottom:0.5px solid rgba(0,0,0,.08);padding:14px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .topbar-title{font-size:18px;font-weight:600;flex:1;color:var(--ink);min-width:120px}
+    .topbar-date{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:5px}
+    .content{padding:20px 24px;overflow-y:auto;flex:1}
+
+    .section{display:none}
+    .section.active{display:block}
+    .section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+    .section-title{font-size:20px;font-weight:700}
+    .section-subtitle{font-size:12px;color:var(--ink3);margin-top:4px}
+    .section-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    .card{background:var(--surface);border:0.5px solid rgba(0,0,0,.08);border-radius:var(--rl);padding:16px 18px}
+    .card + .card{margin-top:16px}
+    .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+    .card-title{font-size:14px;font-weight:600;color:var(--ink)}
+    .card-sub{font-size:12px;color:var(--ink3)}
+
+    .inline-btn,.primary-btn,.ghost-btn{
+      border-radius:var(--r);cursor:pointer;border:0.5px solid rgba(0,0,0,.12);transition:.15s ease;
+      display:inline-flex;align-items:center;gap:6px
+    }
+    .inline-btn{font-size:12px;padding:6px 10px;background:var(--surface);color:var(--ink2)}
+    .inline-btn:hover,.ghost-btn:hover{background:var(--surface2)}
+    .primary-btn{font-size:12px;padding:8px 12px;background:var(--dark);color:#fff;border-color:var(--dark)}
+    .primary-btn:hover{background:var(--dark2)}
+    .ghost-btn{font-size:12px;padding:8px 12px;background:none;color:var(--ink2)}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+    .stat{border-radius:var(--rl);padding:16px 18px;position:relative;overflow:hidden}
+    .stat.dark{background:var(--dark);color:#fff}
+    .stat.light{background:var(--surface);border:0.5px solid rgba(0,0,0,.08)}
+    .stat-label{font-size:11px;font-weight:600;letter-spacing:.04em;margin-bottom:6px;opacity:.6;text-transform:uppercase}
+    .stat.dark .stat-label{color:rgba(255,255,255,.6)}
+    .stat.light .stat-label{color:var(--ink3)}
+    .stat-val{font-size:20px;font-weight:700;line-height:1.1}
+    .stat.dark .stat-val{color:#fff}
+    .stat.light .stat-val{color:var(--ink)}
+    .stat-sub{font-size:11px;margin-top:5px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+    .stat.dark .stat-sub{color:rgba(255,255,255,.5)}
+    .stat.light .stat-sub{color:var(--ink3)}
+    .stat-icon{position:absolute;right:14px;top:14px;font-size:18px;opacity:.2}
+    .stat.dark .stat-icon{color:#fff}
+    .stat.light .stat-icon{color:var(--ink)}
+    .tag-up{color:#1D9E75;font-size:11px;font-weight:600}
+    .tag-down{color:#E24B4A;font-size:11px;font-weight:600}
+
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .mid-row{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:20px}
+    .bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+    .stack{display:grid;gap:16px}
+
+    .chart-wrap{position:relative;height:280px}
+    .chart-wrap.sm{height:220px}
+    .chart-legend{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+    .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)}
+    .leg-dot{width:8px;height:8px;border-radius:2px}
+    .period-note{margin-top:10px;font-size:12px;color:var(--ink3)}
+
+    .wallet-list,.budget-list,.saving-list,.debt-list,.list{display:flex;flex-direction:column;gap:8px}
+    .wallet-item,.simple-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:var(--r)}
+    .wallet-item:hover{background:var(--surface3)}
+    .w-icon,.icon-pill{width:32px;height:32px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+    .w-dark,.bg-dark{background:var(--dark);color:#fff}
+    .w-up,.bg-up{background:#E1F5EE;color:#0F6E56}
+    .w-blue,.bg-blue{background:#E6F1FB;color:#185FA5}
+    .w-warn,.bg-warn{background:#FAEEDA;color:#854F0B}
+    .w-name,.row-title{font-size:12px;font-weight:600;color:var(--ink);flex:1}
+    .w-type,.row-sub{font-size:11px;color:var(--ink3)}
+    .w-bal,.row-value{font-size:13px;font-weight:600;color:var(--ink);text-align:right}
+    .muted{color:var(--ink3)}
+    .empty-state{padding:24px;text-align:center;color:var(--ink3);background:var(--surface2);border-radius:var(--r)}
+
+    .budget-item,.saving-item{display:flex;flex-direction:column;gap:5px;padding:10px 0;border-bottom:0.5px solid rgba(0,0,0,.05)}
+    .budget-item:last-child,.saving-item:last-child,.debt-item:last-child{border-bottom:none}
+    .budget-top,.sav-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .budget-name,.sav-name{font-size:12px;font-weight:600;color:var(--ink2)}
+    .budget-nums,.sav-sub{font-size:11px;color:var(--ink3)}
+    .sav-pct{font-size:12px;font-weight:600;color:var(--ink2)}
+    .prog-track,.sav-prog{height:5px;background:var(--surface3);border-radius:999px;overflow:hidden}
+    .prog-fill,.sav-fill{height:100%;border-radius:999px}
+    .p-ok,.sav-fill{background:var(--dark)}
+    .p-warn{background:#BA7517}
+    .p-over{background:#E24B4A}
+
+    .debt-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(0,0,0,.05)}
+    .debt-av{width:28px;height:28px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--ink2);flex-shrink:0}
+    .debt-name{font-size:12px;font-weight:600;color:var(--ink);flex:1}
+    .debt-due{font-size:11px;color:var(--ink3)}
+    .debt-amt{font-size:13px;font-weight:600;text-align:right}
+    .debt-status,.status-badge,.type-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600}
+    .ds-warn,.status-warn{background:#FAEEDA;color:#854F0B}
+    .ds-ok,.status-ok{background:#E1F5EE;color:#0F6E56}
+    .status-info{background:#E6F1FB;color:#185FA5}
+    .type-in{background:#E1F5EE;color:#0F6E56}
+    .type-out{background:#FCEBEB;color:#A32D2D}
+    .amt-in{color:#1D9E75;font-weight:600}
+    .amt-out{color:#E24B4A;font-weight:600}
+
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .field,.search-input,.select-input,.textarea-input{
+      width:100%;padding:9px 12px;border-radius:var(--r);border:1px solid rgba(0,0,0,.12);background:#fff;color:var(--ink)
+    }
+    .search-input,.select-input{font-size:12px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .field-group{display:grid;gap:6px}
+    .field-label{font-size:12px;font-weight:600;color:var(--ink2)}
+    .helper{font-size:11px;color:var(--ink3)}
+
+    .table-wrap{overflow:auto;border-radius:var(--r)}
+    .trx-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+    .trx-table th{font-size:11px;font-weight:600;color:var(--ink3);padding:8px 10px;text-align:left;border-bottom:0.5px solid rgba(0,0,0,.06);background:var(--surface2)}
+    .trx-table td{padding:10px;border-bottom:0.5px solid rgba(0,0,0,.04);color:var(--ink2);vertical-align:top}
+    .trx-table tr:last-child td{border-bottom:none}
+    .trx-table tr:hover td{background:var(--surface2)}
+
+    .kpi{padding:14px;border-radius:var(--rl);background:var(--surface2)}
+    .kpi-label{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+    .kpi-value{font-size:22px;font-weight:700}
+    .kpi-sub{font-size:12px;color:var(--ink3);margin-top:4px}
+
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab-btn{padding:8px 10px;border-radius:999px;border:1px solid rgba(0,0,0,.12);background:#fff;cursor:pointer;font-size:12px}
+    .tab-btn.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;
+      padding:20px;z-index:60
+    }
+    .modal-overlay.open{display:flex}
+    .modal{background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:18px;border:1px solid rgba(0,0,0,.08)}
+    .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+    .modal-title{font-size:18px;font-weight:700}
+    .modal-sub{font-size:12px;color:var(--ink3);margin-top:4px}
+    .modal-close{border:none;background:none;cursor:pointer;font-size:20px;color:var(--ink3)}
+    .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap}
+
+    #mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30}
+    #mob-sidebar{
+      display:none;position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--surface);z-index:40;
+      flex-direction:column;border-right:0.5px solid rgba(0,0,0,.08);overflow-y:auto;box-shadow:8px 0 24px rgba(0,0,0,.12)
+    }
+
+    @media(max-width:980px){
+      .stats-grid,.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}
+      .mid-row,.bottom-row,.grid-2{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:540px){
+      .app{grid-template-columns:1fr}
+      .sidebar{display:none}
+      .stats-grid,.grid-4,.grid-3{grid-template-columns:1fr}
+      .content{padding:14px}
+      .topbar{padding:12px 14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app">
+      <aside class="sidebar" aria-label="Navigasi utama">
+        <div class="sb-logo">
+          <div class="sb-logo-icon" aria-hidden="true"><i class="ti ti-wallet"></i></div>
+          <div>
+            <div class="sb-logo-text">FinanceMe</div>
+            <div class="sb-logo-sub">Personal Finance</div>
+          </div>
+        </div>
+        <nav class="sb-nav" aria-label="Menu">
+          <div class="sb-section">Utama</div>
+          <button class="nav-item active" data-page="dashboard" onclick="setNav(this,'dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</button>
+          <button class="nav-item" data-page="transaksi" onclick="setNav(this,'transaksi')"><i class="ti ti-arrows-exchange"></i>Transaksi</button>
+          <button class="nav-item" data-page="dompet" onclick="setNav(this,'dompet')"><i class="ti ti-credit-card"></i>Dompet</button>
+          <div class="sb-section">Keuangan</div>
+          <button class="nav-item" data-page="anggaran" onclick="setNav(this,'anggaran')"><i class="ti ti-chart-pie"></i>Anggaran</button>
+          <button class="nav-item" data-page="tabungan" onclick="setNav(this,'tabungan')"><i class="ti ti-piggy-bank"></i>Tabungan</button>
+          <button class="nav-item" data-page="utang" onclick="setNav(this,'utang')"><i class="ti ti-receipt"></i>Utang<span class="nav-badge" id="debt-nav-count">2</span></button>
+          <button class="nav-item" data-page="piutang" onclick="setNav(this,'piutang')"><i class="ti ti-receipt-2"></i>Piutang</button>
+          <div class="sb-section">Analisis</div>
+          <button class="nav-item" data-page="laporan" onclick="setNav(this,'laporan')"><i class="ti ti-file-analytics"></i>Laporan</button>
+          <button class="nav-item" data-page="grafik" onclick="setNav(this,'grafik')"><i class="ti ti-chart-bar"></i>Grafik</button>
+        </nav>
+        <div class="sb-footer">
+          <div class="user-row">
+            <div class="user-av" aria-hidden="true">AR</div>
+            <div>
+              <div class="user-name">Andi R.</div>
+              <div class="user-role">Personal</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="main">
+        <header class="topbar">
+          <button style="display:none;background:none;border:none;cursor:pointer;margin-right:4px" id="mob-menu" aria-label="Menu" onclick="toggleMobNav()"><i class="ti ti-menu-2" style="font-size:20px;color:var(--ink)"></i></button>
+          <div class="topbar-title" id="page-title">Dashboard</div>
+          <div class="topbar-date"><i class="ti ti-calendar"></i><span id="period-label">Juni 2026</span></div>
+          <select id="period-select" class="select-input" style="width:auto;min-width:116px" onchange="changePeriod(this.value)" aria-label="Pilih periode">
+            <option value="bulan">Bulan ini</option>
+            <option value="minggu">Minggu ini</option>
+            <option value="tahun">Tahun ini</option>
+          </select>
+          <button class="primary-btn" onclick="openAddTrx()"><i class="ti ti-plus"></i>Tambah</button>
+        </header>
+
+        <div class="content">
+          <section id="section-dashboard" class="section active">
+            <div class="stats-grid">
+              <div class="stat dark">
+                <i class="ti ti-wallet stat-icon"></i>
+                <div class="stat-label">Saldo total</div>
+                <div class="stat-val" id="s-saldo">Rp0</div>
+                <div class="stat-sub"><span class="tag-up" id="s-net">Rp0</span><span>saldo bersih aktif</span></div>
+              </div>
+              <div class="stat light">
+                <i class="ti ti-trending-up stat-icon"></i>
+                <div class="stat-label">Pemasukan</div>
+                <div class="stat-val" id="s-in" style="color:#1D9E75">Rp0</div>
+                <div class="stat-sub"><i class="ti ti-arrow-up" style="font-size:11px;color:#1D9E75"></i><span id="s-in-count">0 transaksi</span></div>
+              </div>
+              <div class="stat light">
+                <i class="ti ti-trending-down stat-icon"></i>
+                <div class="stat-label">Pengeluaran</div>
+                <div class="stat-val" id="s-out" style="color:#E24B4A">Rp0</div>
+                <div class="stat-sub"><i class="ti ti-arrow-down" style="font-size:11px;color:#E24B4A"></i><span id="s-out-count">0 transaksi</span></div>
+              </div>
+              <div class="stat light">
+                <i class="ti ti-piggy-bank stat-icon"></i>
+                <div class="stat-label">Sisa anggaran</div>
+                <div class="stat-val" id="s-budget">Rp0</div>
+                <div class="stat-sub" id="s-budget-warn">0% anggaran terpakai</div>
+              </div>
+            </div>
+
+            <div class="mid-row">
+              <div class="card">
+                <div class="card-hd">
+                  <div>
+                    <div class="card-title">Pemasukan vs pengeluaran</div>
+                    <div class="card-sub" id="chart-subtitle">6 bulan terakhir</div>
+                  </div>
+                  <div style="display:flex;gap:5px">
+                    <button onclick="setChartMode('bar')" id="btn-bar" class="inline-btn" style="background:var(--dark);color:#fff">Batang</button>
+                    <button onclick="setChartMode('line')" id="btn-line" class="inline-btn">Garis</button>
+                  </div>
+                </div>
+                <div class="chart-wrap"><canvas id="main-chart"></canvas></div>
+                <div class="chart-legend">
+                  <div class="leg"><div class="leg-dot" style="background:#0D0D0D"></div>Pemasukan</div>
+                  <div class="leg"><div class="leg-dot" style="background:#E24B4A"></div>Pengeluaran</div>
+                </div>
+                <div class="period-note" id="period-note">Menampilkan ringkasan untuk bulan ini.</div>
+              </div>
+
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Dompet utama</div>
+                  <button class="ghost-btn" onclick="goToSection('dompet')">Lihat semua</button>
+                </div>
+                <div class="wallet-list" id="wallet-list"></div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-hd">
+                  <div>
+                    <div class="card-title">Transaksi terbaru</div>
+                    <div class="card-sub">Ringkasan aktivitas terakhir</div>
+                  </div>
+                  <div class="toolbar">
+                    <input type="text" placeholder="Cari..." id="search-trx" class="search-input" oninput="filterTrx()" style="width:130px" />
+                    <select id="filter-type" class="select-input" onchange="filterTrx()" style="width:110px">
+                      <option value="">Semua</option>
+                      <option value="income">Pemasukan</option>
+                      <option value="expense">Pengeluaran</option>
+                    </select>
+                    <button class="inline-btn" onclick="goToSection('transaksi')">Semua transaksi</button>
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table class="trx-table">
+                    <thead>
+                      <tr>
+                        <th style="width:85px">Tanggal</th>
+                        <th style="width:70px">Tipe</th>
+                        <th>Keterangan</th>
+                        <th style="width:90px">Kategori</th>
+                        <th style="width:95px;text-align:right">Nominal</th>
+                      </tr>
+                    </thead>
+                    <tbody id="trx-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="stack">
+                <div class="card">
+                  <div class="card-hd">
+                    <div class="card-title">Anggaran bulan ini</div>
+                    <button class="ghost-btn" onclick="goToSection('anggaran')">Kelola</button>
+                  </div>
+                  <div class="budget-list" id="budget-list"></div>
+                </div>
+                <div class="card">
+                  <div class="card-hd">
+                    <div class="card-title">Target tabungan</div>
+                    <button class="ghost-btn" onclick="goToSection('tabungan')">Lihat semua</button>
+                  </div>
+                  <div class="saving-list" id="saving-list"></div>
+                </div>
+                <div class="card">
+                  <div class="card-hd">
+                    <div class="card-title">Utang & piutang</div>
+                    <button class="ghost-btn" onclick="goToSection('utang')">Rincian</button>
+                  </div>
+                  <div class="debt-list" id="debt-list"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="section-transaksi" class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">Transaksi</div>
+                <div class="section-subtitle">Kelola, filter, dan tambah semua transaksi keuangan</div>
+              </div>
+              <div class="section-actions">
+                <button class="primary-btn" onclick="openAddTrx()"><i class="ti ti-plus"></i>Tambah transaksi</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd">
+                <div class="toolbar">
+                  <input class="search-input" id="transactions-search" placeholder="Cari deskripsi atau kategori" oninput="renderTransactionsSection()" style="width:230px" />
+                  <select class="select-input" id="transactions-type" onchange="renderTransactionsSection()" style="width:120px">
+                    <option value="">Semua tipe</option>
+                    <option value="income">Pemasukan</option>
+                    <option value="expense">Pengeluaran</option>
+                  </select>
+                  <select class="select-input" id="transactions-wallet" onchange="renderTransactionsSection()" style="width:130px">
+                    <option value="">Semua dompet</option>
+                  </select>
+                </div>
+                <div class="helper" id="transactions-summary"></div>
+              </div>
+              <div class="table-wrap">
+                <table class="trx-table">
+                  <thead>
+                    <tr>
+                      <th style="width:90px">Tanggal</th>
+                      <th style="width:80px">Tipe</th>
+                      <th>Keterangan</th>
+                      <th style="width:110px">Kategori</th>
+                      <th style="width:110px">Dompet</th>
+                      <th style="width:120px;text-align:right">Nominal</th>
+                    </tr>
+                  </thead>
+                  <tbody id="transactions-section-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="section-dompet" class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">Dompet</div>
+                <div class="section-subtitle">Daftar saldo bank, tunai, dan e-wallet</div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Semua dompet</div>
+                  <div class="card-sub" id="wallet-total-text"></div>
+                </div>
+                <div class="wallet-list" id="wallets-section-list"></div>
+              </div>
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Komposisi dompet</div>
+                  <div class="card-sub">Persentase dari total saldo</div>
+                </div>
+                <div id="wallet-composition" class="list"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="section-anggaran" class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">Anggaran</div>
+                <div class="section-subtitle">Pantau limit, realisasi, dan sisa anggaran per kategori</div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Daftar anggaran</div>
+                  <div class="card-sub" id="budget-meta-text"></div>
+                </div>
+                <div class="budget-list" id="budgets-section-list"></div>
+              </div>
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Status kategori</div>
+                  <div class="card-sub">Peringatan untuk kategori yang mendekati limit</div>
+                </div>
+                <div id="budget-status-list" class="list"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="section-tabungan" class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">Tabungan</div>
+                <div class="section-subtitle">Target finansial dan progres pencapaiannya</div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Target aktif</div>
+                  <div class="card-sub" id="saving-summary-text"></div>
+                </div>
+                <div class="saving-list" id="savings-section-list"></div>
+              </div>
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Ringkasan pencapaian</div>
+                  <div class="card-sub">Total dana tersimpan terhadap target</div>
+                </div>
+                <div class="kpi">
+                  <div class="kpi-label">Total tersimpan</div>
+                  <div class="kpi-value" id="savings-total-saved">Rp0</div>
+                  <div class="kpi-sub" id="savings-total-target">dari target Rp0</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="section-utang" class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">Utang</div>
+                <div class="section-subtitle">Daftar kewajiban pembayaran yang perlu diselesaikan</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd">
+                <div class="card-title">Utang aktif dan riwayat</div>
+                <div class="card-sub" id="debt-summary-text"></div>
+              </div>
+              <div class="debt-list" id="debts-section-list"></div>
+            </div>
+          </section>
+
+          <section id="section-piutang" class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">Piutang</div>
+                <div class="section-subtitle">Tagihan atau pinjaman yang akan diterima kembali</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd">
+                <div class="card-title">Piutang tercatat</div>
+                <div class="card-sub" id="receivable-summary-text"></div>
+              </div>
+              <div class="debt-list" id="receivables-section-list"></div>
+            </div>
+          </section>
+
+          <section id="section-laporan" class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">Laporan</div>
+                <div class="section-subtitle">Ringkasan performa keuangan untuk periode terpilih</div>
+              </div>
+              <div class="section-actions">
+                <button class="inline-btn" onclick="exportSummary()">Export ringkasan</button>
+              </div>
+            </div>
+            <div class="grid-4">
+              <div class="kpi">
+                <div class="kpi-label">Total pemasukan</div>
+                <div class="kpi-value" id="report-income">Rp0</div>
+                <div class="kpi-sub">Semua transaksi masuk</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Total pengeluaran</div>
+                <div class="kpi-value" id="report-expense">Rp0</div>
+                <div class="kpi-sub">Semua transaksi keluar</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Arus kas bersih</div>
+                <div class="kpi-value" id="report-net">Rp0</div>
+                <div class="kpi-sub">Pemasukan dikurangi pengeluaran</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Jumlah transaksi</div>
+                <div class="kpi-value" id="report-count">0</div>
+                <div class="kpi-sub">Transaksi tercatat</div>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:16px">
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Pengeluaran per kategori</div>
+                  <div class="card-sub">Kategori paling besar di periode aktif</div>
+                </div>
+                <div id="expense-category-report" class="list"></div>
+              </div>
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Aktivitas terbaru</div>
+                  <div class="card-sub">5 transaksi terakhir</div>
+                </div>
+                <div id="recent-report-list" class="list"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="section-grafik" class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">Grafik</div>
+                <div class="section-subtitle">Visualisasi pemasukan, pengeluaran, dan komposisi kategori</div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Tren bulanan</div>
+                  <div class="card-sub">Perbandingan pemasukan dan pengeluaran</div>
+                </div>
+                <div class="chart-wrap sm"><canvas id="trend-chart"></canvas></div>
+              </div>
+              <div class="card">
+                <div class="card-hd">
+                  <div class="card-title">Kategori pengeluaran</div>
+                  <div class="card-sub">Komposisi pengeluaran saat ini</div>
+                </div>
+                <div class="chart-wrap sm"><canvas id="pie-chart"></canvas></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div id="mob-overlay" onclick="closeMobNav()"></div>
+    <div id="mob-sidebar" aria-label="Navigasi mobile"></div>
+  </div>
+
+  <div id="modal-overlay" class="modal-overlay" onclick="handleModalOverlay(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title">Tambah transaksi baru</div>
+          <div class="modal-sub">Data akan langsung memperbarui dashboard, laporan, dan grafik.</div>
+        </div>
+        <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+      </div>
+
+      <form id="trx-form">
+        <div class="form-grid">
+          <div class="field-group">
+            <label class="field-label" for="trx-type">Tipe</label>
+            <select id="trx-type" class="field" onchange="syncCategoryOptions()">
+              <option value="income">Pemasukan</option>
+              <option value="expense">Pengeluaran</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="trx-date">Tanggal</label>
+            <input id="trx-date" type="date" class="field" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="trx-wallet">Dompet</label>
+            <select id="trx-wallet" class="field"></select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="trx-category">Kategori</label>
+            <select id="trx-category" class="field"></select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="trx-desc">Keterangan</label>
+            <input id="trx-desc" type="text" class="field" placeholder="Contoh: Bayar listrik rumah" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="trx-amount">Nominal</label>
+            <input id="trx-amount" type="number" min="1" class="field" placeholder="0" />
+          </div>
+        </div>
+        <div class="field-group" style="margin-top:12px">
+          <label class="field-label" for="trx-note">Catatan</label>
+          <textarea id="trx-note" class="field textarea-input" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="ghost-btn" onclick="closeModal()">Batal</button>
+          <button type="submit" class="primary-btn">Simpan transaksi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    const fmt = n => new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(n)
+
+    const monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des']
+    const incomeCategories = ['Gaji','Freelance','Bonus','Investasi','Penjualan']
+    const expenseCategories = ['Makan','Transport','Belanja','Tagihan','Hiburan','Kesehatan','Pendidikan']
+
+    const PERIOD_CONFIG = {
+      bulan: { label: 'Juni 2026', chartSubtitle: '6 bulan terakhir', note: 'Menampilkan ringkasan untuk bulan ini.' },
+      minggu: { label: 'Minggu ini', chartSubtitle: '7 hari terakhir', note: 'Menampilkan ringkasan transaksi untuk minggu ini.' },
+      tahun: { label: 'Tahun 2026', chartSubtitle: '12 bulan terakhir', note: 'Menampilkan performa keuangan sepanjang tahun ini.' }
+    }
+
+    let wallets = [
+      { id:'bca', icon:'ti-building-bank', cls:'w-dark', name:'Rekening BCA', type:'Bank', bal:4250000 },
+      { id:'cash', icon:'ti-cash', cls:'w-up', name:'Uang tunai', type:'Tunai', bal:350000 },
+      { id:'dana', icon:'ti-device-mobile', cls:'w-blue', name:'DANA', type:'E-wallet', bal:150000 },
+      { id:'ovo', icon:'ti-device-mobile-vibration', cls:'w-warn', name:'OVO', type:'E-wallet', bal:250000 }
+    ]
+
+    let transactions = [
+      { id:1, date:'2026-06-01', type:'income', desc:'Gaji bulanan', cat:'Gaji', wallet:'bca', amt:5000000, note:'' },
+      { id:2, date:'2026-06-01', type:'expense', desc:'Makan siang', cat:'Makan', wallet:'cash', amt:35000, note:'' },
+      { id:3, date:'2026-06-02', type:'expense', desc:'Transportasi ojek', cat:'Transport', wallet:'ovo', amt:18000, note:'' },
+      { id:4, date:'2026-06-02', type:'income', desc:'Freelance desain', cat:'Freelance', wallet:'bca', amt:800000, note:'' },
+      { id:5, date:'2026-06-03', type:'expense', desc:'Belanja bulanan', cat:'Belanja', wallet:'bca', amt:420000, note:'' },
+      { id:6, date:'2026-06-03', type:'expense', desc:'Netflix', cat:'Hiburan', wallet:'dana', amt:65000, note:'' },
+      { id:7, date:'2026-06-04', type:'income', desc:'Bonus proyek', cat:'Bonus', wallet:'bca', amt:1200000, note:'' },
+      { id:8, date:'2026-06-04', type:'expense', desc:'Bayar listrik', cat:'Tagihan', wallet:'bca', amt:245000, note:'' },
+      { id:9, date:'2026-06-05', type:'expense', desc:'Beli obat', cat:'Kesehatan', wallet:'cash', amt:87000, note:'' },
+      { id:10, date:'2026-06-05', type:'expense', desc:'Makan malam', cat:'Makan', wallet:'cash', amt:62000, note:'' }
+    ]
+
+    const budgets = [
+      { name:'Makan', limit:1500000 },
+      { name:'Transport', limit:500000 },
+      { name:'Hiburan', limit:400000 },
+      { name:'Tagihan', limit:600000 },
+      { name:'Belanja', limit:800000 },
+      { name:'Kesehatan', limit:300000 }
+    ]
+
+    const savings = [
+      { name:'Dana darurat', target:10000000, saved:3000000, deadline:'Des 2026' },
+      { name:'Beli laptop', target:8000000, saved:2000000, deadline:'Sep 2026' },
+      { name:'Liburan', target:5000000, saved:1500000, deadline:'Agu 2026' }
+    ]
+
+    const debts = [
+      { name:'Cicilan HP', av:'HP', amt:1500000, due:'10 Jun', status:'Belum lunas' },
+      { name:'Pinjaman Andi', av:'AN', amt:500000, due:'15 Jun', status:'Belum lunas' }
+    ]
+
+    const receivables = [
+      { name:'Piutang Rina', av:'RI', amt:150000, due:'08 Jun', status:'Lunas' },
+      { name:'Pinjaman Budi', av:'BU', amt:450000, due:'20 Jun', status:'Menunggu' }
+    ]
+
+    let currentPage = 'dashboard'
+    let currentPeriod = 'bulan'
+    let chartMode = 'bar'
+    let mainChart = null
+    let trendChart = null
+    let pieChart = null
+
+    function walletName(id){
+      return wallets.find(w => w.id === id)?.name || '-'
+    }
+
+    function formatShortDate(value){
+      const d = new Date(value)
+      return `${String(d.getDate()).padStart(2,'0')} ${monthNames[d.getMonth()]}`
+    }
+
+    function getFilteredTransactionsForPeriod(){
+      if (currentPeriod === 'bulan') return [...transactions]
+      if (currentPeriod === 'minggu') return transactions.slice(-7)
+      return [...transactions]
+    }
+
+    function computeMetrics(list = getFilteredTransactionsForPeriod()){
+      const income = list.filter(t => t.type === 'income').reduce((s, t) => s + t.amt, 0)
+      const expense = list.filter(t => t.type === 'expense').reduce((s, t) => s + t.amt, 0)
+      const totalWallet = wallets.reduce((s, w) => s + w.bal, 0)
+      const budgetLimit = budgets.reduce((s, b) => s + b.limit, 0)
+      const budgetUsed = budgets.reduce((s, b) => s + getSpentByCategory(b.name), 0)
+      return { income, expense, totalWallet, net: income - expense, budgetLimit, budgetUsed, count: list.length }
+    }
+
+    function getSpentByCategory(category){
+      return transactions
+        .filter(t => t.type === 'expense' && t.cat === category)
+        .reduce((sum, t) => sum + t.amt, 0)
+    }
+
+    function renderDashboardStats(){
+      const metrics = computeMetrics()
+      const usagePct = metrics.budgetLimit ? Math.round((metrics.budgetUsed / metrics.budgetLimit) * 100) : 0
+      document.getElementById('s-saldo').textContent = fmt(metrics.totalWallet)
+      document.getElementById('s-net').textContent = fmt(metrics.net)
+      document.getElementById('s-in').textContent = fmt(metrics.income)
+      document.getElementById('s-out').textContent = fmt(metrics.expense)
+      document.getElementById('s-budget').textContent = fmt(Math.max(metrics.budgetLimit - metrics.budgetUsed, 0))
+      document.getElementById('s-in-count').textContent = `${transactions.filter(t => t.type === 'income').length} transaksi masuk`
+      document.getElementById('s-out-count').textContent = `${transactions.filter(t => t.type === 'expense').length} transaksi keluar`
+      document.getElementById('s-budget-warn').textContent = `${usagePct}% anggaran terpakai`
+      document.getElementById('debt-nav-count').textContent = String(debts.filter(d => d.status !== 'Lunas').length)
+    }
+
+    function renderWalletLists(){
+      const compact = wallets.slice(0, 4).map(w => `
+        <div class="wallet-item">
+          <div class="w-icon ${w.cls}"><i class="ti ${w.icon}"></i></div>
+          <div style="flex:1"><div class="w-name">${w.name}</div><div class="w-type">${w.type}</div></div>
+          <div class="w-bal">${fmt(w.bal)}</div>
+        </div>
+      `).join('')
+      document.getElementById('wallet-list').innerHTML = compact
+
+      document.getElementById('wallet-total-text').textContent = `Total saldo ${fmt(wallets.reduce((s, w) => s + w.bal, 0))}`
+      document.getElementById('wallets-section-list').innerHTML = wallets.map(w => `
+        <div class="wallet-item">
+          <div class="w-icon ${w.cls}"><i class="ti ${w.icon}"></i></div>
+          <div style="flex:1">
+            <div class="w-name">${w.name}</div>
+            <div class="w-type">${w.type}</div>
+          </div>
+          <div class="w-bal">${fmt(w.bal)}</div>
+        </div>
+      `).join('')
+
+      const total = wallets.reduce((s, w) => s + w.bal, 0) || 1
+      document.getElementById('wallet-composition').innerHTML = wallets.map(w => {
+        const pct = Math.round((w.bal / total) * 100)
+        return `
+          <div class="budget-item">
+            <div class="budget-top">
+              <span class="budget-name">${w.name}</span>
+              <span class="budget-nums">${pct}% · ${fmt(w.bal)}</span>
+            </div>
+            <div class="prog-track"><div class="prog-fill p-ok" style="width:${pct}%"></div></div>
+          </div>
+        `
+      }).join('')
+    }
+
+    function renderBudgetLists(){
+      const budgetRows = budgets.map(b => {
+        const used = getSpentByCategory(b.name)
+        const pct = Math.round((used / b.limit) * 100)
+        const cls = pct > 100 ? 'p-over' : pct > 80 ? 'p-warn' : 'p-ok'
+        const width = Math.min(pct, 100)
+        return `
+          <div class="budget-item">
+            <div class="budget-top">
+              <span class="budget-name">${b.name}</span>
+              <span class="budget-nums">${fmt(used)} / ${fmt(b.limit)}</span>
+            </div>
+            <div class="prog-track"><div class="prog-fill ${cls}" style="width:${width}%"></div></div>
+            ${pct > 100 ? `<div class="helper" style="color:#E24B4A">Melebihi anggaran ${pct - 100}%</div>` : `<div class="helper">${Math.max(0, 100 - pct)}% tersisa</div>`}
+          </div>
+        `
+      }).join('')
+      document.getElementById('budget-list').innerHTML = budgetRows
+      document.getElementById('budgets-section-list').innerHTML = budgetRows
+      document.getElementById('budget-meta-text').textContent = `${budgets.length} kategori anggaran aktif`
+
+      document.getElementById('budget-status-list').innerHTML = budgets.map(b => {
+        const used = getSpentByCategory(b.name)
+        const pct = Math.round((used / b.limit) * 100)
+        const badge = pct > 100 ? 'status-warn' : pct > 80 ? 'status-info' : 'status-ok'
+        const text = pct > 100 ? 'Over budget' : pct > 80 ? 'Perlu perhatian' : 'Aman'
+        return `
+          <div class="simple-row">
+            <div class="icon-pill ${pct > 100 ? 'bg-warn' : pct > 80 ? 'bg-blue' : 'bg-up'}"><i class="ti ti-chart-pie-2"></i></div>
+            <div style="flex:1">
+              <div class="row-title">${b.name}</div>
+              <div class="row-sub">${fmt(used)} dari ${fmt(b.limit)}</div>
+            </div>
+            <span class="status-badge ${badge}">${text}</span>
+          </div>
+        `
+      }).join('')
+    }
+
+    function renderSavingsLists(){
+      const html = savings.map(s => {
+        const pct = Math.round((s.saved / s.target) * 100)
+        return `
+          <div class="saving-item">
+            <div class="sav-top">
+              <span class="sav-name">${s.name}</span>
+              <span class="sav-pct">${pct}%</span>
+            </div>
+            <div class="sav-sub">${fmt(s.saved)} / ${fmt(s.target)} · ${s.deadline}</div>
+            <div class="sav-prog"><div class="sav-fill" style="width:${pct}%"></div></div>
+          </div>
+        `
+      }).join('')
+      document.getElementById('saving-list').innerHTML = html
+      document.getElementById('savings-section-list').innerHTML = html
+      const totalSaved = savings.reduce((s, x) => s + x.saved, 0)
+      const totalTarget = savings.reduce((s, x) => s + x.target, 0)
+      document.getElementById('saving-summary-text').textContent = `${savings.length} target tersimpan`
+      document.getElementById('savings-total-saved').textContent = fmt(totalSaved)
+      document.getElementById('savings-total-target').textContent = `dari target ${fmt(totalTarget)}`
+    }
+
+    function renderDebtLists(){
+      const debtHtml = debts.map(d => `
+        <div class="debt-item">
+          <div class="debt-av">${d.av}</div>
+          <div style="flex:1">
+            <div class="debt-name">${d.name}</div>
+            <div class="debt-due">Jatuh tempo ${d.due}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="debt-amt" style="color:${d.status === 'Lunas' ? '#1D9E75' : '#E24B4A'}">${fmt(d.amt)}</div>
+            <div class="debt-status ${d.status === 'Lunas' ? 'ds-ok' : 'ds-warn'}">${d.status}</div>
+          </div>
+        </div>
+      `).join('')
+      document.getElementById('debt-list').innerHTML = debtHtml
+      document.getElementById('debts-section-list').innerHTML = debtHtml || `<div class="empty-state">Belum ada utang tercatat.</div>`
+      document.getElementById('debt-summary-text').textContent = `${debts.length} item utang`
+
+      const receivableHtml = receivables.map(r => `
+        <div class="debt-item">
+          <div class="debt-av">${r.av}</div>
+          <div style="flex:1">
+            <div class="debt-name">${r.name}</div>
+            <div class="debt-due">Jatuh tempo ${r.due}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="debt-amt" style="color:#1D9E75">${fmt(r.amt)}</div>
+            <div class="debt-status ${r.status === 'Lunas' ? 'ds-ok' : 'ds-warn'}">${r.status}</div>
+          </div>
+        </div>
+      `).join('')
+      document.getElementById('receivables-section-list').innerHTML = receivableHtml || `<div class="empty-state">Belum ada piutang tercatat.</div>`
+      document.getElementById('receivable-summary-text').textContent = `${receivables.length} item piutang`
+    }
+
+    function filterTrx(){
+      const q = document.getElementById('search-trx').value.toLowerCase()
+      const t = document.getElementById('filter-type').value
+      const list = getFilteredTransactionsForPeriod().filter(x => {
+        const matchQ = !q || x.desc.toLowerCase().includes(q) || x.cat.toLowerCase().includes(q)
+        const matchT = !t || x.type === t
+        return matchQ && matchT
+      }).slice().sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 6)
+
+      document.getElementById('trx-tbody').innerHTML = list.map(t => `
+        <tr>
+          <td style="color:var(--ink3)">${formatShortDate(t.date)}</td>
+          <td><span class="type-badge ${t.type === 'income' ? 'type-in' : 'type-out'}">${t.type === 'income' ? 'Masuk' : 'Keluar'}</span></td>
+          <td style="color:var(--ink)">${t.desc}</td>
+          <td style="color:var(--ink3)">${t.cat}</td>
+          <td class="${t.type === 'income' ? 'amt-in' : 'amt-out'}" style="text-align:right">${t.type === 'income' ? '+' : '-'}${fmt(t.amt)}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="5"><div class="empty-state">Tidak ada transaksi ditemukan.</div></td></tr>`
+    }
+
+    function renderTransactionsSection(){
+      const q = document.getElementById('transactions-search').value.toLowerCase()
+      const t = document.getElementById('transactions-type').value
+      const wallet = document.getElementById('transactions-wallet').value
+      const list = transactions
+        .filter(x => (!q || x.desc.toLowerCase().includes(q) || x.cat.toLowerCase().includes(q)))
+        .filter(x => (!t || x.type === t))
+        .filter(x => (!wallet || x.wallet === wallet))
+        .sort((a,b) => new Date(b.date) - new Date(a.date))
+
+      document.getElementById('transactions-summary').textContent = `${list.length} transaksi ditampilkan`
+      document.getElementById('transactions-section-body').innerHTML = list.map(t => `
+        <tr>
+          <td>${formatShortDate(t.date)}</td>
+          <td><span class="type-badge ${t.type === 'income' ? 'type-in' : 'type-out'}">${t.type === 'income' ? 'Masuk' : 'Keluar'}</span></td>
+          <td>
+            <div style="font-weight:600;color:var(--ink)">${t.desc}</div>
+            <div class="helper">${t.note || 'Tanpa catatan'}</div>
+          </td>
+          <td>${t.cat}</td>
+          <td>${walletName(t.wallet)}</td>
+          <td class="${t.type === 'income' ? 'amt-in' : 'amt-out'}" style="text-align:right">${t.type === 'income' ? '+' : '-'}${fmt(t.amt)}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="6"><div class="empty-state">Belum ada transaksi sesuai filter.</div></td></tr>`
+    }
+
+    function renderReports(){
+      const metrics = computeMetrics()
+      document.getElementById('report-income').textContent = fmt(metrics.income)
+      document.getElementById('report-expense').textContent = fmt(metrics.expense)
+      document.getElementById('report-net').textContent = fmt(metrics.net)
+      document.getElementById('report-count').textContent = metrics.count
+
+      const categoryTotals = {}
+      getFilteredTransactionsForPeriod()
+        .filter(t => t.type === 'expense')
+        .forEach(t => {
+          categoryTotals[t.cat] = (categoryTotals[t.cat] || 0) + t.amt
+        })
+
+      const catEntries = Object.entries(categoryTotals).sort((a,b) => b[1] - a[1])
+      document.getElementById('expense-category-report').innerHTML = catEntries.map(([cat, value]) => `
+        <div class="simple-row">
+          <div class="icon-pill bg-warn"><i class="ti ti-chart-donut"></i></div>
+          <div style="flex:1">
+            <div class="row-title">${cat}</div>
+            <div class="row-sub">Total pengeluaran kategori</div>
+          </div>
+          <div class="row-value">${fmt(value)}</div>
+        </div>
+      `).join('') || `<div class="empty-state">Belum ada pengeluaran untuk periode ini.</div>`
+
+      const recent = [...transactions].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5)
+      document.getElementById('recent-report-list').innerHTML = recent.map(t => `
+        <div class="simple-row">
+          <div class="icon-pill ${t.type === 'income' ? 'bg-up' : 'bg-warn'}"><i class="ti ${t.type === 'income' ? 'ti-arrow-down-left' : 'ti-arrow-up-right'}"></i></div>
+          <div style="flex:1">
+            <div class="row-title">${t.desc}</div>
+            <div class="row-sub">${formatShortDate(t.date)} · ${t.cat}</div>
+          </div>
+          <div class="row-value ${t.type === 'income' ? 'amt-in' : 'amt-out'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amt)}</div>
+        </div>
+      `).join('')
+    }
+
+    function getMonthlySeries(){
+      const labels = []
+      const income = []
+      const expense = []
+      for(let i = 0; i < 6; i++){
+        labels.push(monthNames[i])
+      }
+      labels[5] = 'Jun'
+      const baseIncome = [5200000,6100000,5800000,6500000,6800000,0]
+      const baseExpense = [3800000,3200000,4100000,3500000,3000000,0]
+      const currentMonthIncome = transactions.filter(t => t.type === 'income').reduce((s,t) => s + t.amt, 0)
+      const currentMonthExpense = transactions.filter(t => t.type === 'expense').reduce((s,t) => s + t.amt, 0)
+      for(let i = 0; i < 6; i++){
+        income.push(i === 5 ? currentMonthIncome : baseIncome[i])
+        expense.push(i === 5 ? currentMonthExpense : baseExpense[i])
+      }
+      return { labels, income, expense }
+    }
+
+    function drawMainChart(){
+      const series = getMonthlySeries()
+      if(mainChart) mainChart.destroy()
+      mainChart = new Chart(document.getElementById('main-chart').getContext('2d'), {
+        type: chartMode,
+        data:{
+          labels: series.labels,
+          datasets:[
+            {label:'Pemasukan',data:series.income,backgroundColor:'#0D0D0D',borderColor:'#0D0D0D',borderWidth:2,tension:.35,pointRadius:3,fill:false,borderRadius:4},
+            {label:'Pengeluaran',data:series.expense,backgroundColor:'#E24B4A',borderColor:'#E24B4A',borderWidth:2,tension:.35,pointRadius:3,fill:false,borderRadius:4}
+          ]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:false}},
+          scales:{
+            x:{ticks:{font:{size:11},color:'#888'},grid:{display:false}},
+            y:{ticks:{font:{size:10},color:'#888',callback:v=>'Rp'+(v/1000000).toFixed(1)+'jt'},grid:{color:'rgba(0,0,0,.04)'}}
+          }
+        }
+      })
+    }
+
+    function drawTrendChart(){
+      const series = getMonthlySeries()
+      if(trendChart) trendChart.destroy()
+      trendChart = new Chart(document.getElementById('trend-chart').getContext('2d'), {
+        type:'line',
+        data:{
+          labels:series.labels,
+          datasets:[
+            {label:'Pemasukan',data:series.income,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.12)',fill:true,tension:.35},
+            {label:'Pengeluaran',data:series.expense,borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,.08)',fill:true,tension:.35}
+          ]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{position:'bottom'}},
+          scales:{y:{ticks:{callback:v=>'Rp'+(v/1000000).toFixed(1)+'jt'}}}
+        }
+      })
+    }
+
+    function drawPieChart(){
+      const categoryTotals = {}
+      transactions.filter(t => t.type === 'expense').forEach(t => {
+        categoryTotals[t.cat] = (categoryTotals[t.cat] || 0) + t.amt
+      })
+      const labels = Object.keys(categoryTotals)
+      const values = Object.values(categoryTotals)
+      if(pieChart) pieChart.destroy()
+      pieChart = new Chart(document.getElementById('pie-chart').getContext('2d'), {
+        type:'doughnut',
+        data:{
+          labels,
+          datasets:[{
+            data:values,
+            backgroundColor:['#0D0D0D','#E24B4A','#185FA5','#BA7517','#1D9E75','#8B5CF6','#F59E0B']
+          }]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{position:'bottom'}}
+        }
+      })
+    }
+
+    function setChartMode(m){
+      chartMode = m
+      document.getElementById('btn-bar').style.background = m === 'bar' ? 'var(--dark)' : 'none'
+      document.getElementById('btn-bar').style.color = m === 'bar' ? '#fff' : 'var(--ink2)'
+      document.getElementById('btn-line').style.background = m === 'line' ? 'var(--dark)' : 'none'
+      document.getElementById('btn-line').style.color = m === 'line' ? '#fff' : 'var(--ink2)'
+      drawMainChart()
+    }
+
+    function setNav(el, page){
+      currentPage = page
+      document.querySelectorAll('.nav-item[data-page]').forEach(n => n.classList.remove('active'))
+      document.querySelectorAll(`.nav-item[data-page="${page}"]`).forEach(n => n.classList.add('active'))
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'))
+      document.getElementById(`section-${page}`).classList.add('active')
+      document.getElementById('page-title').textContent = page.charAt(0).toUpperCase() + page.slice(1)
+      if(window.innerWidth <= 540) closeMobNav()
+    }
+
+    function goToSection(page){
+      const trigger = document.querySelector(`.nav-item[data-page="${page}"]`)
+      if(trigger) setNav(trigger, page)
+    }
+
+    function changePeriod(v){
+      currentPeriod = v
+      const config = PERIOD_CONFIG[v] || PERIOD_CONFIG.bulan
+      document.getElementById('period-label').textContent = config.label
+      document.getElementById('chart-subtitle').textContent = config.chartSubtitle
+      document.getElementById('period-note').textContent = config.note
+      renderDashboardStats()
+      filterTrx()
+      renderReports()
+      drawMainChart()
+      drawTrendChart()
+      drawPieChart()
+    }
+
+    function populateWalletSelects(){
+      const walletOptions = wallets.map(w => `<option value="${w.id}">${w.name}</option>`).join('')
+      document.getElementById('trx-wallet').innerHTML = walletOptions
+      document.getElementById('transactions-wallet').innerHTML = `<option value="">Semua dompet</option>${walletOptions}`
+    }
+
+    function syncCategoryOptions(){
+      const type = document.getElementById('trx-type').value
+      const categories = type === 'income' ? incomeCategories : expenseCategories
+      document.getElementById('trx-category').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('')
+    }
+
+    function openAddTrx(){
+      document.getElementById('modal-overlay').classList.add('open')
+      document.getElementById('trx-date').value = '2026-06-06'
+      document.getElementById('trx-type').value = 'expense'
+      syncCategoryOptions()
+      document.getElementById('trx-desc').value = ''
+      document.getElementById('trx-amount').value = ''
+      document.getElementById('trx-note').value = ''
+    }
+
+    function closeModal(){
+      document.getElementById('modal-overlay').classList.remove('open')
+    }
+
+    function handleModalOverlay(event){
+      if(event.target.id === 'modal-overlay') closeModal()
+    }
+
+    function updateWalletBalance(walletId, type, amount){
+      const wallet = wallets.find(w => w.id === walletId)
+      if(!wallet) return
+      wallet.bal += type === 'income' ? amount : -amount
+    }
+
+    function handleTransactionSubmit(event){
+      event.preventDefault()
+      const type = document.getElementById('trx-type').value
+      const date = document.getElementById('trx-date').value
+      const wallet = document.getElementById('trx-wallet').value
+      const cat = document.getElementById('trx-category').value
+      const desc = document.getElementById('trx-desc').value.trim()
+      const amt = Number(document.getElementById('trx-amount').value)
+      const note = document.getElementById('trx-note').value.trim()
+
+      if(!date || !wallet || !cat || !desc || !amt || amt <= 0){
+        alert('Mohon lengkapi seluruh data transaksi dengan benar.')
+        return
+      }
+
+      if(type === 'expense'){
+        const targetWallet = wallets.find(w => w.id === wallet)
+        if(targetWallet && targetWallet.bal < amt){
+          alert('Saldo dompet tidak mencukupi untuk pengeluaran ini.')
+          return
+        }
+      }
+
+      const nextId = transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1
+      transactions.push({ id:nextId, type, date, wallet, cat, desc, amt, note })
+      updateWalletBalance(wallet, type, amt)
+      closeModal()
+      refreshApp()
+      goToSection('transaksi')
+    }
+
+    function exportSummary(){
+      const metrics = computeMetrics()
+      const text = [
+        'FinanceMe - Ringkasan Laporan',
+        `Periode: ${PERIOD_CONFIG[currentPeriod].label}`,
+        `Pemasukan: ${fmt(metrics.income)}`,
+        `Pengeluaran: ${fmt(metrics.expense)}`,
+        `Arus kas bersih: ${fmt(metrics.net)}`,
+        `Jumlah transaksi: ${metrics.count}`
+      ].join('\n')
+      alert(text)
+    }
+
+    function toggleMobNav(){
+      const overlay = document.getElementById('mob-overlay')
+      const sidebar = document.getElementById('mob-sidebar')
+      sidebar.style.display = 'flex'
+      overlay.style.display = 'block'
+      sidebar.innerHTML = document.querySelector('.sidebar').innerHTML
+      sidebar.querySelectorAll('.nav-item[data-page]').forEach(btn => {
+        btn.onclick = () => setNav(btn, btn.dataset.page)
+      })
+    }
+
+    function closeMobNav(){
+      document.getElementById('mob-overlay').style.display = 'none'
+      document.getElementById('mob-sidebar').style.display = 'none'
+    }
+
+    function checkMobile(){
+      const mob = window.innerWidth <= 540
+      document.getElementById('mob-menu').style.display = mob ? 'block' : 'none'
+      if(!mob) closeMobNav()
+    }
+
+    function refreshApp(){
+      renderDashboardStats()
+      renderWalletLists()
+      renderBudgetLists()
+      renderSavingsLists()
+      renderDebtLists()
+      filterTrx()
+      renderTransactionsSection()
+      renderReports()
+      drawMainChart()
+      drawTrendChart()
+      drawPieChart()
+      populateWalletSelects()
+    }
+
+    document.getElementById('trx-form').addEventListener('submit', handleTransactionSubmit)
+
+    populateWalletSelects()
+    syncCategoryOptions()
+    refreshApp()
+    changePeriod(document.getElementById('period-select').value)
+    setNav(document.querySelector('.nav-item[data-page="dashboard"]'), 'dashboard')
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+  </script>
+</body>
+</html>
